@@ -381,3 +381,6 @@ app.listen(5000, () => {
     console.log('   GET /api/resumes - Get all resumes');
     console.log('   POST /api/resumes - Save resume');
 });
+
+const cors = require("cors");
+app.use(cors());

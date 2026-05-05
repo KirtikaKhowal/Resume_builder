@@ -58,7 +58,7 @@ function App() {
 
     const fetchResumes = async (token) => {
         try {
-            const res = await axios.get('http://localhost:5000/api/resumes', { 
+            const res = await axios.get('https://resume-builder-hlkx.onrender.com', { 
                 headers: { Authorization: `Bearer ${token}` } 
             });
             setResumes(res.data);
