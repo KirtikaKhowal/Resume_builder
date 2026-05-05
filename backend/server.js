@@ -1,390 +1,276 @@
 const express = require('express');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// In-memory database
-const users = [];
-const resumes = [];
-let userIdCounter = 1;
-let resumeIdCounter = 1;
-
-// ============ JOB ROLES DATABASE ============
+// Detailed Job Roles Database with Required Skills
 const jobRoles = [
-    {
-        title: "Frontend Developer",
+    { 
+        title: "Frontend Developer", 
         icon: "🎨",
-        requiredSkills: ["HTML", "CSS", "JavaScript", "React", "Angular", "Vue", "TypeScript", "Tailwind", "Bootstrap"],
-        description: "Build responsive and interactive user interfaces for web applications.",
+        requiredSkills: ["react", "javascript", "html", "css", "vue", "angular", "typescript", "tailwind", "bootstrap", "next.js"],
+        optionalSkills: ["redux", "jest", "webpack", "figma"],
+        description: "Build responsive and interactive user interfaces",
         salary: "₹4-12 LPA",
         demand: "High",
-        experience: "0-3 years"
+        growth: "15% YoY",
+        learningPath: ["HTML/CSS → JavaScript → React → TypeScript → Next.js"],
+        resources: ["freeCodeCamp", "Frontend Masters", "MDN Web Docs"]
     },
-    {
-        title: "Backend Developer",
+    { 
+        title: "Backend Developer", 
         icon: "⚙️",
-        requiredSkills: ["Node.js", "Python", "Java", "Express", "Django", "Spring Boot", "SQL", "MongoDB", "API"],
-        description: "Develop server-side logic, databases, and APIs for web applications.",
+        requiredSkills: ["node.js", "python", "java", "express", "django", "spring boot", "sql", "mongodb", "rest api", "graphql"],
+        optionalSkills: ["docker", "redis", "rabbitmq", "microservices"],
+        description: "Develop server-side logic, databases, and APIs",
         salary: "₹5-15 LPA",
         demand: "High",
-        experience: "0-3 years"
+        growth: "12% YoY",
+        learningPath: ["Programming Fundamentals → Databases → API Design → System Design"],
+        resources: ["The Odin Project", "Udemy", "Coursera"]
     },
-    {
-        title: "Full Stack Developer",
+    { 
+        title: "Full Stack Developer", 
         icon: "🚀",
-        requiredSkills: ["HTML", "CSS", "JavaScript", "React", "Node.js", "MongoDB", "SQL", "Express", "Git"],
-        description: "Work on both frontend and backend, building complete web applications.",
+        requiredSkills: ["react", "node.js", "javascript", "html", "css", "mongodb", "sql", "express", "git", "rest api"],
+        optionalSkills: ["docker", "aws", "typescript", "graphql", "next.js"],
+        description: "Work on both frontend and backend, building complete applications",
         salary: "₹6-18 LPA",
         demand: "Very High",
-        experience: "1-4 years"
+        growth: "20% YoY",
+        learningPath: ["Frontend → Backend → Database → Deployment → DevOps"],
+        resources: ["The Odin Project", "Full Stack Open", "YouTube"]
     },
-    {
-        title: "Data Analyst",
+    { 
+        title: "Data Analyst", 
         icon: "📊",
-        requiredSkills: ["Python", "SQL", "Excel", "Tableau", "Power BI", "Pandas", "NumPy", "Statistics"],
-        description: "Analyze data and provide insights to help business decisions.",
+        requiredSkills: ["python", "sql", "excel", "tableau", "power bi", "pandas", "numpy", "statistics", "data visualization"],
+        optionalSkills: ["r", "spark", "hadoop", "machine learning"],
+        description: "Analyze data and provide insights to help business decisions",
         salary: "₹4-12 LPA",
         demand: "High",
-        experience: "0-3 years"
+        growth: "25% YoY",
+        learningPath: ["Excel → SQL → Python → Pandas → Tableau → Statistics"],
+        resources: ["DataCamp", "Kaggle", "Google Data Analytics"]
     },
-    {
-        title: "Data Scientist",
+    { 
+        title: "Data Scientist", 
         icon: "🧠",
-        requiredSkills: ["Python", "Machine Learning", "SQL", "TensorFlow", "PyTorch", "Statistics", "Deep Learning", "NLP"],
-        description: "Build predictive models and extract insights from complex data.",
+        requiredSkills: ["python", "machine learning", "sql", "tensorflow", "pytorch", "statistics", "deep learning", "nlp", "pandas", "scikit-learn"],
+        optionalSkills: ["spark", "hadoop", "cloud computing", "big data"],
+        description: "Build predictive models and extract insights from complex data",
         salary: "₹8-25 LPA",
         demand: "Very High",
-        experience: "2-5 years"
+        growth: "30% YoY",
+        learningPath: ["Python → Statistics → Machine Learning → Deep Learning → NLP/Computer Vision"],
+        resources: ["Andrew Ng ML Course", "Kaggle", "DeepLearning.AI"]
     },
-    {
-        title: "DevOps Engineer",
+    { 
+        title: "DevOps Engineer", 
         icon: "🔧",
-        requiredSkills: ["Docker", "Kubernetes", "AWS", "Azure", "Jenkins", "Linux", "CI/CD", "Terraform"],
-        description: "Automate deployment, scaling, and management of applications.",
+        requiredSkills: ["docker", "kubernetes", "aws", "azure", "jenkins", "linux", "ci/cd", "terraform", "git", "bash"],
+        optionalSkills: ["prometheus", "grafana", "ansible", "helm"],
+        description: "Automate deployment, scaling, and management of infrastructure",
         salary: "₹6-20 LPA",
         demand: "High",
-        experience: "1-4 years"
+        growth: "22% YoY",
+        learningPath: ["Linux → Scripting → Docker → Kubernetes → AWS → CI/CD"],
+        resources: ["KodeKloud", "AWS Training", "Linux Academy"]
     },
-    {
-        title: "Mobile Developer",
-        icon: "📱",
-        requiredSkills: ["React Native", "Flutter", "Swift", "Kotlin", "Android", "iOS", "Firebase"],
-        description: "Build native or cross-platform mobile applications.",
-        salary: "₹5-15 LPA",
-        demand: "High",
-        experience: "0-3 years"
-    },
-    {
-        title: "UI/UX Designer",
-        icon: "🎯",
-        requiredSkills: ["Figma", "Adobe XD", "Sketch", "Prototyping", "Wireframing", "User Research", "Photoshop"],
-        description: "Design user interfaces and improve user experience of applications.",
-        salary: "₹4-12 LPA",
-        demand: "Medium",
-        experience: "0-3 years"
-    },
-    {
-        title: "Cloud Engineer",
-        icon: "☁️",
-        requiredSkills: ["AWS", "Azure", "Google Cloud", "Docker", "Kubernetes", "Terraform", "Linux"],
-        description: "Manage cloud infrastructure and deploy scalable applications.",
-        salary: "₹7-22 LPA",
-        demand: "High",
-        experience: "1-4 years"
-    },
-    {
-        title: "AI/ML Engineer",
+    { 
+        title: "AI/ML Engineer", 
         icon: "🤖",
-        requiredSkills: ["Python", "Machine Learning", "Deep Learning", "TensorFlow", "PyTorch", "NLP", "Computer Vision"],
-        description: "Develop artificial intelligence and machine learning models.",
+        requiredSkills: ["python", "machine learning", "deep learning", "tensorflow", "pytorch", "nlp", "computer vision", "statistics", "keras", "data preprocessing"],
+        optionalSkills: ["mlops", "kubeflow", "spark", "cloud ai services"],
+        description: "Develop and deploy artificial intelligence models",
         salary: "₹10-30 LPA",
         demand: "Very High",
-        experience: "2-5 years"
+        growth: "35% YoY",
+        learningPath: ["Python → Math/Stats → ML Fundamentals → Deep Learning → Specialization"],
+        resources: ["Fast.ai", "DeepLearning.AI", "Kaggle Competitions"]
     },
-    {
-        title: "Cybersecurity Analyst",
+    { 
+        title: "Cloud Engineer", 
+        icon: "☁️",
+        requiredSkills: ["aws", "azure", "gcp", "docker", "kubernetes", "terraform", "linux", "networking", "python", "bash"],
+        optionalSkills: ["serverless", "cloudformation", "security", "monitoring"],
+        description: "Design and manage cloud infrastructure at scale",
+        salary: "₹7-22 LPA",
+        demand: "Very High",
+        growth: "28% YoY",
+        learningPath: ["Linux → Networking → Cloud Fundamentals → AWS/Azure → Infrastructure as Code"],
+        resources: ["AWS Training", "Cloud Guru", "Microsoft Learn"]
+    },
+    { 
+        title: "Cybersecurity Analyst", 
         icon: "🔒",
-        requiredSkills: ["Network Security", "Ethical Hacking", "Linux", "Firewall", "SIEM", "Penetration Testing"],
-        description: "Protect systems and networks from cyber threats.",
+        requiredSkills: ["network security", "ethical hacking", "linux", "firewall", "siem", "penetration testing", "vulnerability assessment", "incident response"],
+        optionalSkills: ["cloud security", "certifications", "forensics", "compliance"],
+        description: "Protect systems and networks from cyber threats",
         salary: "₹6-18 LPA",
         demand: "High",
-        experience: "1-4 years"
+        growth: "32% YoY",
+        learningPath: ["Networking → Security Fundamentals → Ethical Hacking → Incident Response → Specialization"],
+        resources: ["TryHackMe", "Hack The Box", "SANS"]
     },
-    {
-        title: "Project Manager",
+    { 
+        title: "Product Manager", 
         icon: "📋",
-        requiredSkills: ["Agile", "Scrum", "JIRA", "Leadership", "Communication", "Risk Management", "Planning"],
-        description: "Lead development teams and manage project deliverables.",
-        salary: "₹10-25 LPA",
+        requiredSkills: ["agile", "scrum", "jira", "product strategy", "user research", "analytics", "communication", "leadership", "roadmapping"],
+        optionalSkills: ["figma", "sql", "marketing", "finance"],
+        description: "Lead product development and define product vision",
+        salary: "₹12-25 LPA",
         demand: "Medium",
-        experience: "3-7 years"
-    },
-    {
-        title: "Blockchain Developer",
-        icon: "⛓️",
-        requiredSkills: ["Blockchain", "Solidity", "Ethereum", "Smart Contracts", "Web3", "Cryptography"],
-        description: "Build decentralized applications and smart contracts.",
-        salary: "₹8-25 LPA",
-        demand: "High",
-        experience: "1-4 years"
-    },
-    {
-        title: "Game Developer",
-        icon: "🎮",
-        requiredSkills: ["Unity", "Unreal Engine", "C#", "C++", "3D Modeling", "Game Design"],
-        description: "Create video games for various platforms.",
-        salary: "₹4-15 LPA",
-        demand: "Medium",
-        experience: "0-3 years"
-    },
-    {
-        title: "Technical Writer",
-        icon: "✍️",
-        requiredSkills: ["Technical Writing", "Documentation", "Communication", "Markdown", "GitHub"],
-        description: "Create technical documentation and user guides.",
-        salary: "₹3-8 LPA",
-        demand: "Low",
-        experience: "0-2 years"
-    },
-    {
-        title: "QA Tester",
-        icon: "🧪",
-        requiredSkills: ["Manual Testing", "Automation Testing", "Selenium", "JIRA", "API Testing", "Cypress"],
-        description: "Test applications to ensure quality and find bugs.",
-        salary: "₹3-9 LPA",
-        demand: "Medium",
-        experience: "0-3 years"
+        growth: "10% YoY",
+        learningPath: ["Business Fundamentals → Product Strategy → Agile → UX Research → Data Analytics"],
+        resources: ["Product School", "Mind the Product", "Coursera"]
     }
 ];
 
-// ============ ANALYZE RESUME API (Ye IMPORTANT HAI) ============
+// Predefined skills list for suggestions
+const allSkills = [
+    "react", "javascript", "html", "css", "node.js", "python", "java", "mongodb", 
+    "sql", "express", "docker", "kubernetes", "aws", "git", "typescript", "next.js",
+    "graphql", "tailwind", "redux", "jest", "tensorflow", "pytorch", "machine learning",
+    "deep learning", "nlp", "pandas", "numpy", "tableau", "power bi", "docker", "jenkins",
+    "linux", "terraform", "figma", "jira", "agile", "scrum", "cybersecurity", "networking"
+];
+
+// Analysis API
 app.post('/api/analyze', (req, res) => {
-    console.log('📊 Analyze request received');
-    console.log('Skills:', req.body.skills);
+    const skills = req.body.skills || [];
+    const lowerSkills = skills.map(s => s.toLowerCase());
     
-    const { skills = [], experience = [], projects = [], education = [] } = req.body;
-    
-    // Calculate match for each job role
+    // Calculate detailed analysis for each role
     const analyzedRoles = jobRoles.map(role => {
-        const matchedSkills = role.requiredSkills.filter(reqSkill => 
-            skills.some(userSkill => 
-                userSkill.toLowerCase().includes(reqSkill.toLowerCase()) ||
-                reqSkill.toLowerCase().includes(userSkill.toLowerCase())
-            )
+        const matchedSkills = role.requiredSkills.filter(req => 
+            lowerSkills.some(s => s.includes(req) || req.includes(s))
         );
         
         const matchPercentage = Math.min(100, Math.floor((matchedSkills.length / role.requiredSkills.length) * 100));
+        const missingSkills = role.requiredSkills.filter(req => 
+            !lowerSkills.some(s => s.includes(req))
+        );
         
         return {
-            ...role,
-            matchedSkills: matchedSkills,
-            matchedCount: matchedSkills.length,
-            totalRequired: role.requiredSkills.length,
+            title: role.title,
+            icon: role.icon,
+            description: role.description,
+            salary: role.salary,
+            demand: role.demand,
+            growth: role.growth,
             matchPercentage: matchPercentage,
-            missingSkills: role.requiredSkills.filter(reqSkill => 
-                !skills.some(userSkill => 
-                    userSkill.toLowerCase().includes(reqSkill.toLowerCase())
-                )
-            ).slice(0, 5)
+            matchedSkills: matchedSkills,
+            missingSkills: missingSkills.slice(0, 8),
+            learningPath: role.learningPath,
+            resources: role.resources
         };
     });
     
     // Sort by match percentage
-    const sortedRoles = analyzedRoles.sort((a, b) => b.matchPercentage - a.matchPercentage);
-    const topRecommendations = sortedRoles.slice(0, 3);
+    analyzedRoles.sort((a, b) => b.matchPercentage - a.matchPercentage);
+    const topRecommendations = analyzedRoles.slice(0, 4);
     
     // Calculate resume score
-    let totalScore = 0;
+    let score = 0;
+    if (skills.length >= 12) score = 92;
+    else if (skills.length >= 10) score = 85;
+    else if (skills.length >= 8) score = 75;
+    else if (skills.length >= 6) score = 65;
+    else if (skills.length >= 4) score = 50;
+    else if (skills.length >= 2) score = 35;
+    else if (skills.length >= 1) score = 20;
+    else score = 5;
+    
+    // Generate improvement suggestions
     const suggestions = [];
+    const recommendedSkills = [];
     
-    // Skills score (max 40)
-    if (skills.length >= 10) totalScore += 40;
-    else if (skills.length >= 7) totalScore += 35;
-    else if (skills.length >= 5) totalScore += 30;
-    else if (skills.length >= 3) totalScore += 20;
-    else if (skills.length >= 1) totalScore += 10;
+    if (skills.length < 6) {
+        suggestions.push(`📈 Add ${6 - skills.length} more skills to reach 60% score`);
+        recommendedSkills.push(...allSkills.slice(0, 5));
+    }
     
-    if (skills.length < 5) suggestions.push("Add more technical skills (aim for 7-10 skills)");
+    if (topRecommendations[0]?.missingSkills?.length > 0) {
+        suggestions.push(`🎯 Learn ${topRecommendations[0].missingSkills.slice(0, 3).join(", ")} to become a ${topRecommendations[0].title}`);
+        recommendedSkills.push(...topRecommendations[0].missingSkills.slice(0, 3));
+    }
     
-    // Experience score (max 30)
-    if (experience && experience.length >= 2) totalScore += 30;
-    else if (experience && experience.length === 1) totalScore += 20;
-    else if (experience && experience.length > 0) totalScore += 10;
+    if (skills.filter(s => ["react", "angular", "vue"].includes(s.toLowerCase())).length === 0) {
+        suggestions.push(`⚛️ Add a frontend framework (React, Angular, or Vue) to increase opportunities`);
+        recommendedSkills.push("React");
+    }
     
-    if (!experience || experience.length === 0) suggestions.push("Add work experience or internships");
+    if (skills.filter(s => ["node.js", "python", "java", "php"].includes(s.toLowerCase())).length === 0) {
+        suggestions.push(`💻 Learn a backend language (Node.js, Python, or Java)`);
+        recommendedSkills.push("Node.js");
+    }
     
-    // Projects score (max 20)
-    if (projects && projects.length >= 2) totalScore += 20;
-    else if (projects && projects.length === 1) totalScore += 12;
-    else if (projects && projects.length > 0) totalScore += 8;
+    if (skills.filter(s => ["mongodb", "postgresql", "mysql", "sql"].includes(s.toLowerCase())).length === 0) {
+        suggestions.push(`🗄️ Add database skills (MongoDB, PostgreSQL, or MySQL)`);
+        recommendedSkills.push("MongoDB");
+    }
     
-    if (!projects || projects.length === 0) suggestions.push("Add projects to showcase your work");
+    if (skills.filter(s => ["docker", "kubernetes", "aws", "jenkins"].includes(s.toLowerCase())).length === 0) {
+        suggestions.push(`🐳 Learn DevOps basics (Docker, Git, CI/CD) for better job prospects`);
+        recommendedSkills.push("Docker");
+    }
     
-    // Education score (max 10)
-    if (education && education.length > 0) totalScore += 10;
-    else suggestions.push("Add your educational qualifications");
+    // Remove duplicates
+    const uniqueRecommended = [...new Set(recommendedSkills)];
     
     const response = {
         success: true,
-        resumeScore: totalScore,
-        suggestions: suggestions,
+        resumeScore: score,
         topRecommendations: topRecommendations,
-        allRoles: sortedRoles,
-        skillGaps: topRecommendations[0]?.missingSkills || [],
+        suggestions: suggestions,
+        recommendedSkills: uniqueRecommended.slice(0, 8),
         summary: {
             totalSkills: skills.length,
-            uniqueSkills: skills.length,
-            jobMarketFit: totalScore >= 70 ? "Excellent" : totalScore >= 50 ? "Good" : "Needs Improvement"
+            jobMarketFit: score >= 75 ? "Excellent" : score >= 55 ? "Good" : score >= 35 ? "Average" : "Needs Improvement",
+            nextMilestone: score >= 75 ? "Apply for senior roles" : score >= 55 ? "Build portfolio projects" : "Focus on skill development"
         }
     };
     
-    console.log('✅ Analysis complete. Score:', totalScore);
+    console.log('📊 Analysis complete. Score:', score);
     res.json(response);
 });
 
-// Test route for analyze API
-app.get('/api/analyze/test', (req, res) => {
-    res.json({ message: 'Analyze API is working! Send POST request to /api/analyze with skills array' });
+// Get all skills (for frontend suggestions)
+app.get('/api/skills', (req, res) => {
+    res.json({ skills: allSkills });
 });
 
-// ============ AUTH APIs ============
-app.post('/api/signup', async (req, res) => {
-    console.log('Signup:', req.body.email);
-    const { name, email, password } = req.body;
-    
-    const existingUser = users.find(u => u.email === email);
-    if (existingUser) {
-        return res.status(400).json({ error: 'User already exists' });
-    }
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = { id: userIdCounter++, name, email, password: hashedPassword };
-    users.push(newUser);
-    
-    const token = jwt.sign({ userId: newUser.id }, 'secretkey');
-    res.json({ token, user: { id: newUser.id, name, email } });
+// Get job roles (for frontend)
+app.get('/api/jobs', (req, res) => {
+    res.json({ jobs: jobRoles.map(r => ({ title: r.title, icon: r.icon, requiredSkills: r.requiredSkills })) });
 });
 
-app.post('/api/login', async (req, res) => {
-    console.log('Login:', req.body.email);
-    const { email, password } = req.body;
-    
-    const user = users.find(u => u.email === email);
-    if (!user) {
-        return res.status(400).json({ error: 'User not found' });
-    }
-    
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
-        return res.status(400).json({ error: 'Invalid password' });
-    }
-    
-    const token = jwt.sign({ userId: user.id }, 'secretkey');
-    res.json({ token, user: { id: user.id, name: user.name, email } });
+// Test API
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'API is working!', timestamp: new Date().toISOString() });
 });
 
-// ============ RESUME APIs ============
-app.get('/api/resumes', (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
-    
-    try {
-        const decoded = jwt.verify(token, 'secretkey');
-        const userResumes = resumes.filter(r => r.userId === decoded.userId);
-        res.json(userResumes);
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
-    }
-});
+// Resumes CRUD
+let resumes = [];
+let id = 1;
 
+app.get('/api/resumes', (req, res) => res.json(resumes));
 app.post('/api/resumes', (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
-    
-    try {
-        const decoded = jwt.verify(token, 'secretkey');
-        const { title, personalInfo, skills, experience, education, template, theme } = req.body;
-        
-        const newResume = {
-            id: resumeIdCounter++,
-            userId: decoded.userId,
-            title: title || 'Untitled Resume',
-            personalInfo: personalInfo || {},
-            skills: skills || [],
-            experience: experience || [],
-            education: education || [],
-            template: template || 'modern',
-            theme: theme || { primary: '#2563EB', secondary: '#7C3AED' },
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
-        resumes.push(newResume);
-        res.json({ message: 'Resume saved successfully', resume: newResume });
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
-    }
+    const newResume = { id: id++, ...req.body, createdAt: new Date() };
+    resumes.push(newResume);
+    res.json({ success: true, resume: newResume });
 });
-
 app.delete('/api/resumes/:id', (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
-    
-    try {
-        const decoded = jwt.verify(token, 'secretkey');
-        const resumeIndex = resumes.findIndex(r => r.id === parseInt(req.params.id) && r.userId === decoded.userId);
-        
-        if (resumeIndex === -1) {
-            return res.status(404).json({ error: 'Resume not found' });
-        }
-        
-        resumes.splice(resumeIndex, 1);
-        res.json({ message: 'Resume deleted successfully' });
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
-    }
-});
-
-app.get('/api/resumes/:id', (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
-    
-    try {
-        const decoded = jwt.verify(token, 'secretkey');
-        const resume = resumes.find(r => r.id === parseInt(req.params.id) && r.userId === decoded.userId);
-        
-        if (!resume) {
-            return res.status(404).json({ error: 'Resume not found' });
-        }
-        
-        res.json(resume);
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
-    }
-});
-
-// Root route
-app.get('/', (req, res) => {
-    res.json({ message: 'Resume Builder API is running!', endpoints: ['/api/signup', '/api/login', '/api/analyze', '/api/resumes'] });
+    resumes = resumes.filter(r => r.id !== parseInt(req.params.id));
+    res.json({ success: true });
 });
 
 app.listen(5000, () => {
-    console.log('✅ Server running on https://resume-builder-1-hf4l.onrender.com');
-    console.log('📊 Job roles loaded:', jobRoles.length);
-    console.log('🔗 Available endpoints:');
-    console.log('   POST /api/signup - Create account');
-    console.log('   POST /api/login - Login');
-    console.log('   POST /api/analyze - Analyze resume (AI)');
-    console.log('   GET /api/resumes - Get all resumes');
-    console.log('   POST /api/resumes - Save resume');
+    console.log('\n========================================');
+    console.log('🚀 Server: http://localhost:5000');
+    console.log('📊 POST /api/analyze - AI Analysis');
+    console.log('========================================\n');
 });
-
-const cors = require("cors");
-
-app.use(cors({
-  origin: "*",
-  credentials: true
-}));
