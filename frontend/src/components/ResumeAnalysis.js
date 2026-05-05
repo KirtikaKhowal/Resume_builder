@@ -9,7 +9,7 @@ const ResumeAnalysis = ({ skills, experience, projects, education, token }) => {
     const analyzeResume = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:5000/api/analyze', {
+            const response = await axios.post('https://resume-builder-1-hf4l.onrender.com/api/analyze', {
                 skills: skills || [],
                 experience: experience || [],
                 projects: projects || [],

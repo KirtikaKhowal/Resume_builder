@@ -372,7 +372,7 @@ app.get('/', (req, res) => {
 });
 
 app.listen(5000, () => {
-    console.log('✅ Server running on http://localhost:5000');
+    console.log('✅ Server running on https://resume-builder-1-hf4l.onrender.com');
     console.log('📊 Job roles loaded:', jobRoles.length);
     console.log('🔗 Available endpoints:');
     console.log('   POST /api/signup - Create account');
@@ -383,4 +383,8 @@ app.listen(5000, () => {
 });
 
 const cors = require("cors");
-app.use(cors());
+
+app.use(cors({
+  origin: "*",
+  credentials: true
+}));

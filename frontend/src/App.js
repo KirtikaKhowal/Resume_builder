@@ -31,6 +31,11 @@ function App() {
     const [signupPassword, setSignupPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+
+    // App.js ya Navbar me
+{/* <Login /> */}
+{/* <Signup /> */}
     
     // Analysis
     const [analysisResult, setAnalysisResult] = useState(null);
@@ -70,7 +75,7 @@ function App() {
         setLoading(true);
         setError('');
         try {
-            const res = await axios.post('http://localhost:5000/api/signup', { 
+            const res = await axios.post('https://resume-builder-hlkx.onrender.com', { 
                 name: signupName, email: signupEmail, password: signupPassword 
             });
             if (res.data.token) {
@@ -143,7 +148,7 @@ function App() {
     const saveResume = async () => {
         const token = localStorage.getItem('token');
         try {
-            await axios.post('http://localhost:5000/api/resumes', {
+            await axios.post('https://resume-builder-1-hf4l.onrender.com/api/resumes', {
                 personalInfo: formData.personalInfo,
                 skills: formData.skills,
                 experience: formData.experience,
@@ -159,7 +164,7 @@ function App() {
     const analyzeResume = async () => {
         setAnalyzing(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/analyze', {
+            const res = await axios.post('https://resume-builder-1-hf4l.onrender.com/api/analyze', {
                 skills: formData.skills,
                 experience: formData.experience
             });

@@ -29,7 +29,7 @@ const Dashboard = () => {
     const fetchResumes = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/resume/all', {
+            const response = await axios.get('https://resume-builder-1-hf4l.onrender.com/api/resume/all', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setResumes(response.data || []);

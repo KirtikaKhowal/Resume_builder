@@ -65,7 +65,7 @@ const ResumeBuilders = () => {
     const handleSave = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/resume/save', formData, {
+            await axios.post('https://resume-builder-1-hf4l.onrender.com/api/resume/save', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             alert('✅ Resume saved successfully!');
