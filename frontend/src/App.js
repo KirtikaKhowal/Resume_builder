@@ -29,7 +29,7 @@ function App() {
     const [secondaryColor, setSecondaryColor] = useState('#EC4899');
     const [accentColor, setAccentColor] = useState('#06B6D4');
     const [bgColor, setBgColor] = useState('#1a1a2e');
-    const [textColor, setTextColor] = useState('#FFFFFF');
+    const [textColor] = useState('#FFFFFF');
     
     // Predefined Color Palettes
     const colorPalettes = [
