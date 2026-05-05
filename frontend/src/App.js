@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import ResumeAnalysis from './components/ResumeAnalysis';
-import { PiggyBank } from 'lucide-react';
 function App() {
     const [darkMode, setDarkMode] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
