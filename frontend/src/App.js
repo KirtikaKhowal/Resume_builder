@@ -31,12 +31,6 @@ function App() {
     const [signupPassword, setSignupPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-
-
-    // App.js ya Navbar me
-{/* <Login /> */}
-{/* <Signup /> */}
-    
     // Analysis
     const [analysisResult, setAnalysisResult] = useState(null);
     const [analyzing, setAnalyzing] = useState(false);
