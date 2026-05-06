@@ -59,7 +59,7 @@ function App() {
 
     const fetchResumes = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/resumes');
+            const res = await axios.get('https://resume-builder-1-lb0b.onrender.com/api/resumes');
             setResumes(res.data);
         } catch (err) { console.log(err); }
     };
@@ -88,7 +88,7 @@ function App() {
     };
 
     const saveResume = async () => {
-        await axios.post('http://localhost:5000/api/resumes', form);
+        await axios.post('https://resume-builder-1-lb0b.onrender.com/api/resumes', form);
         alert('✅ Resume saved!');
         fetchResumes();
         setPage('dashboard');
@@ -101,7 +101,7 @@ function App() {
         }
         setAnalyzing(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/analyze', { skills: form.skills });
+            const res = await axios.post('https://resume-builder-1-lb0b.onrender.com/api/analyze', { skills: form.skills });
             setAnalysis(res.data);
             setTab('analyze');
         } catch (err) { alert('Analysis failed'); }

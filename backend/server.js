@@ -270,7 +270,7 @@ app.delete('/api/resumes/:id', (req, res) => {
 
 app.listen(5000, () => {
     console.log('\n========================================');
-    console.log('🚀 Server: http://localhost:5000');
+    console.log('🚀 Server: https://resume-builder-1-lb0b.onrender.com');
     console.log('📊 POST /api/analyze - AI Analysis');
     console.log('========================================\n');
 });
